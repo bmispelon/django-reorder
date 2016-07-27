@@ -13,17 +13,22 @@ from django.test import TestCase
 
 from django_reorder.reorder import reorder, BEFORE, AFTER
 
-from .models import Tshirt
+from .models import Sleeve, Tshirt
 
 
 class TestDjango_reorder(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Tshirt.objects.create(name='DjangoCon US 2016', size='M')
-        Tshirt.objects.create(name='DjangoCon Europe 2012', size='L')
-        Tshirt.objects.create(name='PyCon US 2014', size='XXS')
-        Tshirt.objects.create(name='Django Under the Hood 2015', size='XXL')
+        m = Tshirt.objects.create(name='DjangoCon US 2016', size='M')
+        l = Tshirt.objects.create(name='DjangoCon Europe 2012', size='L')
+        xxs = Tshirt.objects.create(name='PyCon US 2014', size='XXS')
+        xxl = Tshirt.objects.create(name='Django Under the Hood 2015', size='XXL')
+
+        Sleeve.objects.create(tshirt=m, length=10)
+        Sleeve.objects.create(tshirt=l, length=20)
+        Sleeve.objects.create(tshirt=xxs, length=30)
+        Sleeve.objects.create(tshirt=xxl, length=40)
 
     def test_function_signature(self):
         with self.assertRaises(TypeError):
@@ -84,3 +89,8 @@ class TestDjango_reorder(TestCase):
             ],
             transform=attrgetter('name')
         )
+
+    def test_join_foreignkey(self):
+        sizes = list('XXS XS S M L XL XXL'.split())
+        queryset = Sleeve.objects.order_by(reorder(tshirt__size=sizes))
+        self.assertQuerysetEqual(queryset, [30, 10, 20, 40], transform=attrgetter('length'))

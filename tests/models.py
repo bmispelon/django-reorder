@@ -18,3 +18,8 @@ class Tshirt(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Sleeve(models.Model):
+    tshirt = models.ForeignKey('Tshirt')
+    length = models.IntegerField()
