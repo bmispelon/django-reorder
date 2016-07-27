@@ -5,9 +5,6 @@ Django Reorder
 .. image:: https://badge.fury.io/py/django-reorder.png
     :target: https://badge.fury.io/py/django-reorder
 
-.. image:: https://travis-ci.org/bmispelon/django-reorder.png?branch=master
-    :target: https://travis-ci.org/bmispelon/django-reorder
-
 A project that helps sorting querysets in a specific order
 
 Documentation
@@ -24,12 +21,18 @@ Install Django Reorder::
 
 Then use it in a project::
 
-    import django_reorder
+    from django_reorder.reorder import reorder
+
+    Tshirt.objects.order_by(reorder(size=['S', 'M', 'L']))
+
+
+Some more detailed examples can be foind on the :doc:`usage` page.
 
 Features
 --------
 
-* TODO
+* Can be used in ``order_by()`` and in ``annotate()`` calls.
+* Works across relationships.
 
 Running Tests
 --------------
