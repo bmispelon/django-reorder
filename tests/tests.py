@@ -20,15 +20,18 @@ class TestDjango_reorder(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        m = Tshirt.objects.create(name='DjangoCon US 2016', size='M')
-        l = Tshirt.objects.create(name='DjangoCon Europe 2012', size='L')
-        xxs = Tshirt.objects.create(name='PyCon US 2014', size='XXS')
-        xxl = Tshirt.objects.create(name='Django Under the Hood 2015', size='XXL')
+        pycon_us_2014 = Tshirt.objects.create(name='PyCon US 2014', size='XXS')
+        pycon_us_2015 = Tshirt.objects.create(name='PyCon US 2015', size='XXS')
+        djcon_us_2016 = Tshirt.objects.create(name='DjangoCon US 2016', size='M')
+        djcon_eu_2012 = Tshirt.objects.create(name='DjangoCon Europe 2012', size='L')
+        djcon_eu_2017 = Tshirt.objects.create(name='DjangoCon Europe 2017', size='XXL')
 
-        Sleeve.objects.create(tshirt=m, length=10)
-        Sleeve.objects.create(tshirt=l, length=20)
-        Sleeve.objects.create(tshirt=xxs, length=30)
-        Sleeve.objects.create(tshirt=xxl, length=40)
+        Sleeve.objects.create(tshirt=pycon_us_2014, length=30)
+        Sleeve.objects.create(tshirt=pycon_us_2014, length=35)
+        Sleeve.objects.create(tshirt=djcon_us_2016, length=10)
+        Sleeve.objects.create(tshirt=djcon_us_2016, length=30)
+        Sleeve.objects.create(tshirt=djcon_eu_2012, length=20)
+        Sleeve.objects.create(tshirt=djcon_eu_2017, length=40)
 
     def test_function_signature(self):
         with self.assertRaises(TypeError):
@@ -41,35 +44,38 @@ class TestDjango_reorder(TestCase):
             queryset,
             [
                 'PyCon US 2014',
+                'PyCon US 2015',
                 'DjangoCon US 2016',
                 'DjangoCon Europe 2012',
-                'Django Under the Hood 2015',
+                'DjangoCon Europe 2017',
             ],
             transform=attrgetter('name')
         )
 
     def test_reorder_after(self):
-        sizes = list('XS S M L XL XXL'.split())  # leaving out XXL
+        sizes = list('XS S M L XL XXL'.split())  # leaving out XXS
         queryset = Tshirt.objects.order_by(reorder(size=sizes, _default=AFTER))
         self.assertQuerysetEqual(
             queryset,
             [
                 'DjangoCon US 2016',
                 'DjangoCon Europe 2012',
-                'Django Under the Hood 2015',
+                'DjangoCon Europe 2017',
                 'PyCon US 2014',
+                'PyCon US 2015',
             ],
             transform=attrgetter('name')
         )
 
     def test_reorder_before(self):
-        sizes = list('XXS XS S M L XL'.split())  # leaving out XXS
+        sizes = list('XXS XS S M L XL'.split())  # leaving out XXL
         queryset = Tshirt.objects.order_by(reorder(size=sizes, _default=BEFORE))
         self.assertQuerysetEqual(
             queryset,
             [
-                'Django Under the Hood 2015',
+                'DjangoCon Europe 2017',
                 'PyCon US 2014',
+                'PyCon US 2015',
                 'DjangoCon US 2016',
                 'DjangoCon Europe 2012',
             ],
@@ -82,10 +88,11 @@ class TestDjango_reorder(TestCase):
         self.assertQuerysetEqual(
             queryset,
             [
-                'Django Under the Hood 2015',
+                'DjangoCon Europe 2017',
                 'DjangoCon Europe 2012',
                 'DjangoCon US 2016',
                 'PyCon US 2014',
+                'PyCon US 2015',
             ],
             transform=attrgetter('name')
         )
@@ -93,4 +100,9 @@ class TestDjango_reorder(TestCase):
     def test_join_foreignkey(self):
         sizes = list('XXS XS S M L XL XXL'.split())
         queryset = Sleeve.objects.order_by(reorder(tshirt__size=sizes))
-        self.assertQuerysetEqual(queryset, [30, 10, 20, 40], transform=attrgetter('length'))
+        self.assertQuerysetEqual(queryset, [30, 35, 10, 30, 20, 40], transform=attrgetter('length'))
+
+    def test_join_foreignkey_plus_order_by(self):
+        djcon_us_2016 = Tshirt.objects.get(name='DjangoCon US 2016')
+        queryset = Sleeve.objects.order_by(reorder(tshirt=[djcon_us_2016]), 'length')
+        self.assertQuerysetEqual(queryset, [10, 30, 20, 30, 35, 40], transform=attrgetter('length'))
