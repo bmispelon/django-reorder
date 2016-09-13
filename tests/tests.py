@@ -11,7 +11,7 @@ from operator import attrgetter
 
 from django.test import TestCase
 
-from django_reorder.reorder import reorder, BEFORE, AFTER
+from django_reorder.reorder import null_first, null_last, reorder, BEFORE, AFTER
 
 from .models import Sleeve, Tshirt
 
@@ -106,3 +106,21 @@ class TestDjango_reorder(TestCase):
         djcon_us_2016 = Tshirt.objects.get(name='DjangoCon US 2016')
         queryset = Sleeve.objects.order_by(reorder(tshirt=[djcon_us_2016]), 'length')
         self.assertQuerysetEqual(queryset, [10, 30, 20, 30, 35, 40], transform=attrgetter('length'))
+
+    def test_null_first(self):
+        Sleeve.objects.create(length=5)
+        Sleeve.objects.create(length=50)
+        queryset = Sleeve.objects.order_by(null_first('tshirt'), 'length')
+        self.assertQuerysetEqual(queryset, [5, 50, 10, 20, 30, 40], transform=attrgetter('length'))
+
+        queryset = Sleeve.objects.order_by(null_first('tshirt'), '-length')
+        self.assertQuerysetEqual(queryset, [50, 5, 40, 30, 20, 10], transform=attrgetter('length'))
+
+    def test_null_last(self):
+        Sleeve.objects.create(length=5)
+        Sleeve.objects.create(length=50)
+        queryset = Sleeve.objects.order_by(null_last('tshirt'), 'length')
+        self.assertQuerysetEqual(queryset, [10, 20, 30, 40, 5, 50], transform=attrgetter('length'))
+
+        queryset = Sleeve.objects.order_by(null_last('tshirt'), '-length')
+        self.assertQuerysetEqual(queryset, [40, 30, 20, 10, 50, 5], transform=attrgetter('length'))
