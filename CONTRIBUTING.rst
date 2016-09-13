@@ -110,3 +110,5 @@ Tips
 To run a subset of tests::
 
     $ python -m unittest tests.test_django_reorder
+
+To make a new release, follow the checklist at https://gist.github.com/audreyr/5990987
