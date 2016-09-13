@@ -69,20 +69,20 @@ Reference
     the end, and different databases do it differently).
 
     It takes a single required argument: the name of the field (as a string)
-    whose ``NULL`` values should be sorted first.
+    whose ``NULL`` values should be sorted first::
 
-    class Tshirt(models.Model):
-        ...
-        purchased_on = models.DateTimeField(blank=True, null=True)
+        class Tshirt(models.Model):
+            ...
+            purchased_on = models.DateTimeField(blank=True, null=True)
 
-    # This will yield all Tshirt objects and those without a purchase date
-    # will be listed first:
-    Tshirt.objects.order_by(null_first('purchased_on'))
+        # This will yield all Tshirt objects and those without a purchase date
+        # will be listed first:
+        Tshirt.objects.order_by(null_first('purchased_on'))
 
-    # You can also combine null_first() with other sorting fields.
-    # For example this will sort Tshirt by their purchase date but it will list
-    # T-shirts without a purchase date first:
-    Tshirt.objects.order_by(null_first('purchased_on'), 'purchased_on')
+        # You can also combine null_first() with other sorting fields.
+        # For example this will sort Tshirt by their purchase date but it will
+        # list T-shirts without a purchase date first:
+        Tshirt.objects.order_by(null_first('purchased_on'), 'purchased_on')
 
 
 .. function:: null_last(fieldname)
