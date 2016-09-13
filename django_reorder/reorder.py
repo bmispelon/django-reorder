@@ -31,3 +31,18 @@ def reorder(_default=AFTER, _reverse=False, **kwargs):
         return casewhen.desc()
     else:
         return casewhen.asc()
+
+
+def null_first(fieldname):
+    """
+    Return a database expression that can be used in an order_by() close
+    so that rows whose `fieldname` is NULL are sorted at the beginning.
+    """
+    return reorder(_default=AFTER, **{fieldname: [None]})
+
+
+def null_last(fieldname):
+    """
+    Similar to null_first but NULL rows are sorted at the end.
+    """
+    return reorder(_default=BEFORE, **{fieldname: [None]})

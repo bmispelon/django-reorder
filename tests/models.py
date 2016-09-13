@@ -21,5 +21,5 @@ class Tshirt(models.Model):
 
 
 class Sleeve(models.Model):
-    tshirt = models.ForeignKey('Tshirt')
+    tshirt = models.ForeignKey('Tshirt', blank=True, null=True)
     length = models.IntegerField()

@@ -33,6 +33,8 @@ Features
 
 * Can be used in ``order_by()`` and in ``annotate()`` calls.
 * Works across relationships.
+* Lets you control the sorting order of ``NULL`` values explicitly (otherwise
+  it can vary across databases).
 
 Running Tests
 --------------

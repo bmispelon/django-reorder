@@ -53,9 +53,39 @@ Reference
 
     It takes two optional parameters (their names are prefixed by an
     underscore to prevent clashing with potential field names):
-    
+
     * ``_default`` controls whether values that don't appear in ``<new order>``
       are sorted before or after (the default) those that do.
       Use the ``BEFORE`` and ``AFTER`` constants that can be imported from the module.
 
     * ``_reverse`` lets you reverse the sorting.
+
+
+.. function:: null_first(fieldname)
+
+    This function is a small wrapper around ``reorder()`` and lets you control
+    the sorting order of ``NULL`` values for a given field (otherwise your
+    database will decide whether to put ``NULL`` values at the beginning or at
+    the end, and different databases do it differently).
+
+    It takes a single required argument: the name of the field (as a string)
+    whose ``NULL`` values should be sorted first.
+
+    class Tshirt(models.Model):
+        ...
+        purchased_on = models.DateTimeField(blank=True, null=True)
+
+    # This will yield all Tshirt objects and those without a purchase date
+    # will be listed first:
+    Tshirt.objects.order_by(null_first('purchased_on'))
+
+    # You can also combine null_first() with other sorting fields.
+    # For example this will sort Tshirt by their purchase date but it will list
+    # T-shirts without a purchase date first:
+    Tshirt.objects.order_by(null_first('purchased_on'), 'purchased_on')
+
+
+.. function:: null_last(fieldname)
+
+    Works exactly like ``null_first``, except that ``NULL`` values are sorted
+    at the end.
